@@ -1,4 +1,3 @@
-import { module } from "module";
 /** @type {import('prettier').Config} */
 module.exports = {
   bracketSpacing: true,
