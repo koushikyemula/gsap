@@ -8,6 +8,7 @@ const Hero = () => {
   const [videoSrc, setVideoSrc] = useState(window.innerWidth > 768 ? heroVideo : smallHeroVideo);
   useGSAP(() => {
     gsap.to("#hero", { opacity: 1, delay: 1.5 });
+    gsap.to("#cta", { opacity: 1, delay: 1.5, y: -50 });
   }, []);
 
   const handleSetVideo = () => {
@@ -34,6 +35,12 @@ const Hero = () => {
             <source src={videoSrc} type="video/mp4" />
           </video>
         </div>
+      </div>
+      <div className="flex flex-col opacity-0 items-center translate-y-20" id="cta">
+        <a href="#highights" className="btn">
+          Buy
+        </a>
+        <p className="font-normal text-xl"> From $199/month or $999</p>
       </div>
     </section>
   );
