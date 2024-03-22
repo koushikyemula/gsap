@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { hightlightsSlides } from "../constants";
 import { useState } from "react";
 import { useEffect } from "react";
+import { pauseImg, playImg, replayImg } from "../utils";
 
 const VideoCarousel = () => {
   const videoRef = useRef([]);
@@ -28,6 +29,26 @@ const VideoCarousel = () => {
       }
     }
   }, [startPlay, videoId, isPlaying, loadedData]);
+
+  const handleProcess = (type, idx) => {
+    switch (type) {
+      case "video-end":
+        setVideo((prev) => ({ ...prev, isEnd: true, videoId: idx + 1 }));
+        break;
+      case "video-last":
+        setVideo((prev) => ({ ...prev, isLastVideo: true }));
+        break;
+      case "video-reset":
+        setVideo((prev) => ({ ...prev, isLastVideo: false, videoId: 0 }));
+        break;
+      case "play":
+        setVideo((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
+        break;
+
+      default:
+        return video;
+    }
+  };
 
   return (
     <>
@@ -73,6 +94,19 @@ const VideoCarousel = () => {
             </span>
           ))}
         </div>
+        <button>
+          <img
+            src={isLastVideo ? replayImg : !isPlaying ? playImg : pauseImg}
+            alt={isLastVideo ? "replay" : !isPlaying ? "play" : "pause"}
+            onClick={
+              isLastVideo
+                ? () => handleProcess("replay")
+                : !isPlaying
+                  ? () => handleProcess("play")
+                  : () => handleProcess("pause")
+            }
+          />
+        </button>
       </div>
     </>
   );
