@@ -3,6 +3,8 @@ import { hightlightsSlides } from "../constants";
 import { useState } from "react";
 import { useEffect } from "react";
 import { pauseImg, playImg, replayImg } from "../utils";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 const VideoCarousel = () => {
   const videoRef = useRef([]);
@@ -29,6 +31,58 @@ const VideoCarousel = () => {
       }
     }
   }, [startPlay, videoId, isPlaying, loadedData]);
+
+  useGSAP(() => {
+    gsap.to("#video", {
+      scrollTrigger: {
+        trigger: "#video",
+        toggleActions: "restart none none none",
+      },
+      onComplete: () => {
+        setVideo((prev) => ({ ...prev, startPlay: true, isPlaying: true }));
+      },
+    });
+  }, [isEnd, videoId]);
+
+  const handleLoadedMetaData = (idx, e) => {
+    setLoadedData((prev) => [...prev, e]);
+  };
+
+  useEffect(() => {
+    let currentProgress = 0;
+    let span = videoSpanRef.current;
+
+    if (span[videoId]) {
+      let anim = gsap.to(span[videoId], {
+        onUpdate: () => {
+          const progress = Math.ceil(anim.progress() * 100);
+          if (progress != currentProgress) {
+            currentProgress = progress;
+
+            gsap.to(videoDivRef.current[videoId], {
+              width: window.innerWidth < 760 ? "10vw" : window.innerWidth < 1200 ? "10vw" : "4vw",
+            });
+
+            gsap.to(videoSpanRef.current[videoId], {
+              width: `${currentProgress}%`,
+              backgroundColor: "white",
+            });
+          }
+        },
+        onComplete: () => {
+          if (isPlaying) {
+            gsap.to(videoDivRef.current[videoId], {
+              width: "12px",
+            });
+          }
+
+          gsap.to(span[videoId], {
+            backgroundColor: "#afafaf",
+          });
+        },
+      });
+    }
+  }, [videoId, startPlay]);
 
   const handleProcess = (type, idx) => {
     switch (type) {
@@ -65,7 +119,8 @@ const VideoCarousel = () => {
                   ref={(e) => (videoRef.current[idx] = e)}
                   onPlay={() => {
                     setVideo((prev) => ({ ...prev, isPlaying: true }));
-                  }}>
+                  }}
+                  onLoadedMetadata={(e) => handleLoadedMetaData(idx, e)}>
                   <source src={slide.video} type="video/mp4" />
                 </video>
               </div>
