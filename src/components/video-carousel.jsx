@@ -116,6 +116,9 @@ const VideoCarousel = () => {
       case "play":
         setVideo((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
         break;
+      case "pause":
+        setVideo((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
+        break;
 
       default:
         return video;
@@ -134,6 +137,7 @@ const VideoCarousel = () => {
                   id="video"
                   playsInline={true}
                   muted
+                  className={`${slide.id === 2 && "translate-x-44"}, pointer-events-none`}
                   ref={(e) => (videoRef.current[idx] = e)}
                   onEnded={() => (idx !== 3 ? handleProcess("video-end", idx) : handleProcess("video-last"))}
                   onPlay={() => {
@@ -168,17 +172,18 @@ const VideoCarousel = () => {
             </span>
           ))}
         </div>
-        <button className="control-btn">
+        <button
+          className="control-btn"
+          onClick={
+            isLastVideo
+              ? () => handleProcess("video-reset")
+              : !isPlaying
+                ? () => handleProcess("play")
+                : () => handleProcess("pause")
+          }>
           <img
             src={isLastVideo ? replayImg : !isPlaying ? playImg : pauseImg}
             alt={isLastVideo ? "replay" : !isPlaying ? "play" : "pause"}
-            onClick={
-              isLastVideo
-                ? () => handleProcess("replay")
-                : !isPlaying
-                  ? () => handleProcess("play")
-                  : () => handleProcess("pause")
-            }
           />
         </button>
       </div>
