@@ -33,6 +33,11 @@ const VideoCarousel = () => {
   }, [startPlay, videoId, isPlaying, loadedData]);
 
   useGSAP(() => {
+    gsap.to("#slider", {
+      transform: `translateX(${videoId * -100}%)`,
+      duration: 2,
+      ease: "power2.inOut",
+    });
     gsap.to("#video", {
       scrollTrigger: {
         trigger: "#video",
@@ -74,15 +79,28 @@ const VideoCarousel = () => {
             gsap.to(videoDivRef.current[videoId], {
               width: "12px",
             });
+            gsap.to(span[videoId], {
+              backgroundColor: "#afafaf",
+            });
           }
-
-          gsap.to(span[videoId], {
-            backgroundColor: "#afafaf",
-          });
         },
       });
+
+      if (videoId === 0) {
+        anim.restart();
+      }
+
+      const animUpdate = () => {
+        anim.progress(videoRef.current[videoId].currentTime / hightlightsSlides[videoId].videoDuration);
+      };
+
+      if (isPlaying) {
+        gsap.ticker.add(animUpdate);
+      } else {
+        gsap.ticker.remove(animUpdate);
+      }
     }
-  }, [videoId, startPlay]);
+  }, [videoId, startPlay, isPlaying]);
 
   const handleProcess = (type, idx) => {
     switch (type) {
@@ -117,6 +135,7 @@ const VideoCarousel = () => {
                   playsInline={true}
                   muted
                   ref={(e) => (videoRef.current[idx] = e)}
+                  onEnded={() => (idx !== 3 ? handleProcess("video-end", idx) : handleProcess("video-last"))}
                   onPlay={() => {
                     setVideo((prev) => ({ ...prev, isPlaying: true }));
                   }}
@@ -149,7 +168,7 @@ const VideoCarousel = () => {
             </span>
           ))}
         </div>
-        <button>
+        <button className="control-btn">
           <img
             src={isLastVideo ? replayImg : !isPlaying ? playImg : pauseImg}
             alt={isLastVideo ? "replay" : !isPlaying ? "play" : "pause"}
